@@ -1,0 +1,188 @@
+/* TNxFlix Web — Netflix theme */
+:root {
+  --bg: #141414;
+  --bg-soft: #1f1f1f;
+  --bg-card: #2a2a2a;
+  --red: #E50914;
+  --red-dark: #b20710;
+  --text: #ffffff;
+  --text-dim: #b3b3b3;
+  --radius: 6px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+}
+a { color: var(--text); text-decoration: none; }
+.hidden { display: none !important; }
+
+/* ---------- header ---------- */
+.site-header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 28px;
+  padding: 12px 4%;
+  background: linear-gradient(180deg, rgba(0,0,0,.92), rgba(20,20,20,.88));
+  backdrop-filter: blur(6px);
+}
+.logo { font-size: 28px; font-weight: 800; letter-spacing: .5px; color: var(--text); white-space: nowrap; }
+.logo span { color: var(--red); }
+.main-nav { display: flex; gap: 18px; }
+.main-nav a { font-size: 14px; color: var(--text-dim); transition: color .2s; }
+.main-nav a:hover, .main-nav a.active { color: var(--text); }
+.search-box { margin-left: auto; position: relative; }
+.search-box input {
+  background: rgba(0,0,0,.75); color: var(--text);
+  border: 1px solid #555; border-radius: 4px;
+  padding: 8px 12px; width: 230px; font-size: 14px; outline: none;
+}
+.search-box input:focus { border-color: #fff; width: 290px; }
+.suggest-box {
+  position: absolute; right: 0; top: calc(100% + 6px); width: 320px; max-width: 86vw;
+  background: #181818; border: 1px solid #333; border-radius: var(--radius);
+  overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,.6);
+}
+.suggest-box button {
+  display: block; width: 100%; text-align: left; background: none; border: none;
+  color: var(--text); padding: 10px 14px; font-size: 14px; cursor: pointer;
+}
+.suggest-box button:hover { background: #2a2a2a; }
+
+/* ---------- generic ---------- */
+.center-msg { text-align: center; padding: 90px 20px; color: var(--text-dim); }
+.spinner {
+  width: 46px; height: 46px; margin: 0 auto 16px;
+  border: 4px solid #333; border-top-color: var(--red); border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-box {
+  max-width: 560px; margin: 70px auto; text-align: center; padding: 28px;
+  background: var(--bg-soft); border: 1px solid #3a3a3a; border-radius: var(--radius);
+}
+.error-box h2 { margin-bottom: 10px; }
+.error-box p { color: var(--text-dim); margin-bottom: 18px; }
+.btn {
+  display: inline-block; background: var(--red); color: #fff; border: none;
+  padding: 11px 26px; font-size: 16px; font-weight: 600; border-radius: 4px; cursor: pointer;
+}
+.btn:hover { background: var(--red-dark); }
+.btn.secondary { background: rgba(109,109,110,.7); }
+.btn.secondary:hover { background: rgba(109,109,110,.45); }
+.btn.small { padding: 7px 16px; font-size: 14px; }
+.brand-red { color: var(--red); }
+.toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+  background: #232323; border: 1px solid #444; color: #fff; padding: 10px 20px;
+  border-radius: 4px; font-size: 14px; z-index: 500; box-shadow: 0 8px 24px rgba(0,0,0,.55);
+}
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative; min-height: 62vh; display: flex; align-items: flex-end;
+  background-size: cover; background-position: center 22%;
+  padding: 0 4% 56px;
+}
+.hero::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(77deg, rgba(0,0,0,.88) 10%, transparent 65%),
+              linear-gradient(0deg, var(--bg) 2%, transparent 45%);
+}
+.hero-content { position: relative; max-width: 620px; }
+.hero-content h1 { font-size: clamp(28px, 5vw, 52px); line-height: 1.08; margin-bottom: 14px; text-shadow: 0 2px 12px rgba(0,0,0,.7); }
+.hero-meta { color: #e5e5e5; font-size: 15px; margin-bottom: 18px; display: flex; gap: 14px; flex-wrap: wrap; }
+.hero-meta .rating { color: #46d369; font-weight: 700; }
+.hero-actions { display: flex; gap: 12px; }
+
+/* ---------- rows & cards ---------- */
+.row { padding: 18px 0 4px 4%; }
+.row h2 { font-size: 19px; margin-bottom: 10px; }
+.row-posters { display: flex; gap: 10px; overflow-x: auto; padding: 4px 4% 14px 0; scrollbar-width: thin; }
+.card { flex: 0 0 148px; cursor: pointer; transition: transform .2s; }
+.card:hover { transform: scale(1.05); }
+.card img {
+  width: 148px; height: 222px; object-fit: cover; border-radius: var(--radius);
+  background: var(--bg-card); display: block;
+}
+.card .card-title { font-size: 13px; margin-top: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card .card-sub { font-size: 12px; color: var(--text-dim); display: flex; gap: 8px; }
+.card .card-sub .rating { color: #46d369; font-weight: 600; }
+.card .progress { height: 4px; background: #444; border-radius: 2px; margin-top: 6px; overflow: hidden; }
+.card .progress i { display: block; height: 100%; background: var(--red); }
+
+/* ---------- grid pages ---------- */
+.page { padding: 26px 4% 40px; }
+.page h1 { font-size: 26px; margin-bottom: 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 16px 12px; }
+.grid .card { flex: none; }
+.grid .card img { width: 100%; height: auto; aspect-ratio: 2/3; }
+.load-more { text-align: center; margin: 28px 0 6px; }
+
+/* ---------- detail ---------- */
+.detail-backdrop {
+  position: relative; min-height: 46vh; display: flex; align-items: flex-end;
+  background-size: cover; background-position: center 20%; padding: 0 4% 34px;
+}
+.detail-backdrop::before {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(77deg, rgba(0,0,0,.9) 8%, transparent 60%),
+              linear-gradient(0deg, var(--bg) 2%, transparent 50%);
+}
+.detail-head { position: relative; max-width: 700px; }
+.detail-head h1 { font-size: clamp(26px, 4.4vw, 44px); line-height: 1.1; margin-bottom: 12px; }
+.detail-body { padding: 8px 4% 44px; max-width: 980px; }
+.detail-desc { color: #e8e8e8; line-height: 1.55; margin: 14px 0 22px; font-size: 15px; }
+.meta-line { display: flex; gap: 14px; flex-wrap: wrap; color: var(--text-dim); font-size: 14px; }
+.meta-line .rating { color: #46d369; font-weight: 700; }
+.chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 6px; }
+.chip {
+  background: var(--bg-card); color: var(--text); border: 1px solid #444;
+  padding: 7px 15px; border-radius: 999px; font-size: 13.5px; cursor: pointer;
+}
+.chip:hover { border-color: #888; }
+.chip.active { background: var(--red); border-color: var(--red); font-weight: 600; }
+.section-label { font-size: 15px; color: var(--text-dim); margin-top: 20px; text-transform: uppercase; letter-spacing: .6px; }
+.ep-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.ep-btn {
+  min-width: 46px; padding: 9px 0; text-align: center; background: var(--bg-card);
+  border: 1px solid #444; border-radius: 4px; color: #fff; font-size: 14px; cursor: pointer;
+}
+.ep-btn:hover { border-color: var(--red); }
+select.season-select {
+  background: var(--bg-card); color: #fff; border: 1px solid #444; border-radius: 4px;
+  padding: 8px 12px; font-size: 14px; margin-top: 10px;
+}
+
+/* ---------- watch ---------- */
+.watch-wrap { max-width: 1120px; margin: 0 auto; padding: 22px 16px 46px; }
+.player-box { position: relative; background: #000; border-radius: var(--radius); overflow: hidden; }
+.player-box video { width: 100%; aspect-ratio: 16/9; display: block; background: #000; }
+.player-overlay {
+  position: absolute; inset: 0; display: flex; flex-direction: column; gap: 12px;
+  align-items: center; justify-content: center; background: rgba(0,0,0,.72);
+  text-align: center; padding: 20px; z-index: 5;
+}
+.player-overlay p { color: var(--text-dim); max-width: 520px; }
+.watch-title { font-size: 22px; margin: 18px 0 4px; }
+.watch-sub { color: var(--text-dim); font-size: 14px; margin-bottom: 14px; }
+.source-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 14px 0; }
+.source-bar .lbl { color: var(--text-dim); font-size: 13.5px; margin-right: 2px; }
+
+/* ---------- footer ---------- */
+.site-footer { padding: 34px 4% 42px; color: #808080; font-size: 13.5px; text-align: center; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 720px) {
+  .site-header { gap: 14px; flex-wrap: wrap; }
+  .logo { font-size: 23px; }
+  .main-nav { order: 3; width: 100%; }
+  .search-box { flex: 1; }
+  .search-box input, .search-box input:focus { width: 100%; }
+  .hero { min-height: 46vh; padding-bottom: 38px; }
+  .card { flex-basis: 118px; }
+  .card img { width: 118px; height: 177px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
+}
