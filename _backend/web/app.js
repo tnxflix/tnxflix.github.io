@@ -387,6 +387,7 @@ async function viewWatch(id, q) {
     '<h1 class="watch-title">' + esc(title) + "</h1>" +
     '<div class="watch-sub">' + (ep ? "Season " + se + " · Episode " + ep : "Movie") + "</div>" +
     '<div class="source-bar"><span class="lbl">Quality / Source:</span><span id="sourceChips"></span></div>' +
+    '<div class="source-bar"><span class="lbl">Connection:</span><span id="connChips"></span></div>' +
     '<div class="source-bar"><span class="lbl">Subtitles:</span><span id="subChips"></span></div>' +
     '<p><a class="btn secondary small" href="#/title/' + enc(id) + '">← Back to details</a></p>' +
     "</div>";
@@ -397,6 +398,27 @@ async function viewWatch(id, q) {
   const chipsBox = document.getElementById("sourceChips");
   const subBox = document.getElementById("subChips");
   const posKey = progressKey(id, se, ep);
+  // Connection mode: "direct" = the browser pulls the video straight from
+  // the CDN over the viewer's own connection (no server in between);
+  // "server" = the backend proxies it. Direct is the default.
+  let connMode = "direct";
+  try { connMode = localStorage.getItem("tnxflix_conn") || "direct"; } catch (e) {}
+  if (connMode !== "direct" && connMode !== "server") connMode = "direct";
+  const connBox = document.getElementById("connChips");
+  function renderConnChips() {
+    connBox.innerHTML =
+      '<button class="chip' + (connMode === "direct" ? " active" : "") + '" data-conn="direct">Direct (your connection)</button> ' +
+      '<button class="chip' + (connMode === "server" ? " active" : "") + '" data-conn="server">Server</button>';
+  }
+  renderConnChips();
+  connBox.addEventListener("click", (ev) => {
+    const btn = ev.target.closest("[data-conn]");
+    if (!btn || btn.dataset.conn === connMode) return;
+    connMode = btn.dataset.conn;
+    try { localStorage.setItem("tnxflix_conn", connMode); } catch (e) {}
+    renderConnChips();
+    if (currentIdx >= 0) loadSource(currentIdx, video.currentTime || 0);
+  });
   let currentIdx = -1;
   let started = false;
   let stallTimer = null;
@@ -413,12 +435,22 @@ async function viewWatch(id, q) {
   }
   function failCurrent(reason) {
     const next = streams[currentIdx + 1];
+    const otherMode = connMode === "direct" ? "server" : "direct";
     showOverlay("<h3>Playback problem</h3><p>" + esc(reason || "This source could not be played.") + "</p>" +
       (next
-        ? '<button class="btn" id="nextSrcBtn">Try next source (' + esc(sourceLabel(next)) + ")</button>"
-        : '<a class="btn" href="#/title/' + enc(id) + '">Back to title</a>'));
+        ? '<button class="btn" id="nextSrcBtn">Try next source (' + esc(sourceLabel(next)) + ")</button> "
+        : "") +
+      '<button class="btn secondary" id="modeBtn">Try via ' + (otherMode === "direct" ? "Direct" : "Server") + " instead</button>" +
+      (next ? "" : ' <a class="btn" href="#/title/' + enc(id) + '">Back to title</a>'));
     const b = document.getElementById("nextSrcBtn");
     if (b) b.addEventListener("click", () => loadSource(currentIdx + 1, video.currentTime || 0));
+    const m = document.getElementById("modeBtn");
+    if (m) m.addEventListener("click", () => {
+      connMode = otherMode;
+      try { localStorage.setItem("tnxflix_conn", connMode); } catch (e) {}
+      renderConnChips();
+      loadSource(currentIdx, video.currentTime || 0);
+    });
   }
   function armStallWatch() {
     clearTimeout(stallTimer);
@@ -441,7 +473,7 @@ async function viewWatch(id, q) {
     started = false;
     renderChips();
     const s = streams[idx];
-    showOverlay('<div class="spinner"></div><p>Loading ' + esc(sourceLabel(s)) + "...</p>");
+    showOverlay('<div class="spinner"></div><p>Loading ' + esc(sourceLabel(s)) + (connMode === "direct" ? " (Direct)" : " (Server)") + "...</p>");
     if (dashPlayer) { try { dashPlayer.destroy(); } catch (e) {} dashPlayer = null; }
     video.removeAttribute("src");
     video.querySelectorAll("track").forEach((t) => t.remove());
@@ -466,7 +498,7 @@ async function viewWatch(id, q) {
     if (s.format === "DASH" || /\.mpd($|\?)/i.test(s.url)) {
       if (window.dashjs) {
         dashPlayer = dashjs.MediaPlayer().create();
-        dashPlayer.initialize(video, apiUrl("/dash?url=" + enc(s.url) + (s.cookie ? "&cookie=" + enc(s.cookie) : "")), true);
+        dashPlayer.initialize(video, connMode === "direct" ? s.url : apiUrl("/dash?url=" + enc(s.url) + (s.cookie ? "&cookie=" + enc(s.cookie) : "")), true);
         dashPlayer.on(dashjs.MediaPlayer.events.ERROR, (e) => {
           if (!started) failCurrent("DASH playback error" + (e && e.error && e.error.message ? ": " + e.error.message : "."));
         });
@@ -475,7 +507,7 @@ async function viewWatch(id, q) {
         return;
       }
     } else {
-      video.src = apiUrl("/proxy?url=" + enc(s.url));
+      video.src = connMode === "direct" ? s.url : apiUrl("/proxy?url=" + enc(s.url));
       video.load();
       video.play().catch(() => {});
     }
