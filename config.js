@@ -8,4 +8,4 @@
 // API/proxy runs on a separate free host. Set the backend's full URL
 // here (no trailing slash), e.g.:
 //   window.TNXFLIX_API = "https://your-name-tnxflix.hf.space";
-window.TNXFLIX_API = "";
+window.TNXFLIX_API = "https://tnxflix-api.onrender.com";
